@@ -12,20 +12,20 @@ export default function Recipes() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [query, setQuery] = useState('');
 
-  const searchRecipes = async () => {
-    try {
-      const res = await spoonacular.get('/recipes/complexSearch', {
-        params: {
-          query,
-          number: 10,
-          addRecipeNutrition: true
-        }
-      });
-      setRecipes(res.data.results);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+const searchRecipes = async () => {
+  try {
+    const res = await spoonacular.get<{ results: Recipe[] }>('/recipes/complexSearch', {
+      params: {
+        query,
+        number: 10,
+        addRecipeNutrition: true,
+      },
+    });
+    setRecipes(res.data.results);
+  } catch (err) {
+    console.error(err);
+  }
+};
 
   useEffect(() => {
     searchRecipes();
