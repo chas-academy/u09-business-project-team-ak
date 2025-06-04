@@ -5,13 +5,8 @@ services:
     build: .
     ports:
       - "4000:4000"
-    environment:
-      - PORT=4000
-      - MONGO_URI=mongodb+srv://allenkarro:1HST1a0uNWh96TjV@healthyhabits.eqfgy4l.mongodb.net/
-      - SESSION_SECRET=your-session-secret
-      - GOOGLE_CLIENT_ID=your-google-client-id
-      - GOOGLE_CLIENT_SECRET=your-google-client-secret
-      - SPOONACULAR_API_KEY=your-spoonacular-api-key
+    env_file:
+      - .env
     depends_on:
       - mongo
     volumes:
