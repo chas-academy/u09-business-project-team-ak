@@ -11,6 +11,7 @@ interface User {
 
 export default function Navbar() {
   const [user, setUser] = useState<User | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -19,18 +20,13 @@ export default function Navbar() {
         const res = await fetch('http://localhost:4000/profile', {
           credentials: 'include',
         });
-
-        if (!res.ok) {
-          throw new Error('Not authenticated');
-        }
-
+        if (!res.ok) throw new Error('Not authenticated');
         const data = await res.json();
         setUser(data);
       } catch {
-        setUser(null); // Not logged in or error
+        setUser(null);
       }
     };
-
     fetchProfile();
   }, []);
 
@@ -48,35 +44,82 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="bg-orange-500/0 text-white px-6 py-4 shadow-md">
-      <div className="max-w-l mx-auto flex justify-between items-center">
-        <h1 className="text-4xl font-bold text-white">
-          Healthy<span className="text-orange-400">Habits</span>
-        </h1>
-        <div className="space-x-4 flex-1 text-center">
-          <a href="/" className="hover:underline">Home</a>
-          <a href="/recipes" className="hover:underline">Recipes</a>
-          <a href="/mealplan" className="hover:underline">Meal Plan</a>
+    <nav className=" text-white px-6 py-4 shadow-md w-full">
+      <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:justify-between sm:items-center">
+        {/* Top row with logo and toggle button */}
+        <div className="flex items-center justify-between w-full sm:w-auto">
+          <h1 className="text-3xl font-bold text-white">
+            Healthy<span className="text-green-500">Habits</span>
+          </h1>
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="sm:hidden focus:outline-none"
+            aria-label="Toggle Menu"
+          >
+            {menuOpen ? (
+              <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24">
+                <path
+                  d="M6 18L18 6M6 6l12 12"
+                  stroke="white"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+              </svg>
+            ) : (
+              <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24">
+                <path
+                  d="M4 6h16M4 12h16M4 18h16"
+                  stroke="white"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+              </svg>
+            )}
+          </button>
         </div>
-        <div>
-          {user ? (
-            <div className="flex items-center space-x-2">
-              <span className="text-sm">Welcome, {user.displayName || user.name}</span>
-              <button
-                onClick={handleLogout}
-                className="text-red-400 hover:underline"
-              >
-                Logout
-              </button>
-            </div>
-          ) : (
-            <a
-              href="http://localhost:4000/auth/google"
-              className="bg-orange-400 px-4 py-2 rounded text-white hover:bg-orange-500"
-            >
-              Login with Google
+
+        {/* Dropdown / main nav content */}
+        <div
+          className={`${
+            menuOpen ? 'flex' : 'hidden'
+          } flex-col sm:flex sm:flex-row sm:items-center w-full sm:w-auto transition-all duration-300 ease-in-out origin-top bg-[#121c14] sm:bg-transparent py-8 sm:py-0 gap-8 sm:gap-6`}
+        >
+          {/* Links */}
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 text-lg sm:text-xl font-semibold text-center sm:text-left">
+            <a href="/" className="hover:text-green-500 transition-colors duration-200">
+              Home
             </a>
-          )}
+            <a href="/recipes" className="hover:text-green-500 transition-colors duration-200">
+              Recipes
+            </a>
+            <a href="/mealplan" className="hover:text-green-500 transition-colors duration-200">
+              Meal Plan
+            </a>
+          </div>
+
+          {/* Auth section */}
+          <div className="flex flex-col sm:flex-row items-center gap-3 text-base sm:text-lg">
+            {user ? (
+              <>
+                <span className="text-white font-medium">
+                  Welcome, {user.displayName || user.name}
+                </span>
+                <button
+                  onClick={handleLogout}
+                  className="text-red-300 hover:text-red-500 transition-colors duration-200"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <a
+                href="http://localhost:4000/auth/google"
+                className="bg-green-700 px-4 py-2 rounded text-white hover:bg-green-500 transition duration-200"
+              >
+                Login with Google
+              </a>
+            )}
+          </div>
         </div>
       </div>
     </nav>
