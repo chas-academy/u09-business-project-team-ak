@@ -1,21 +1,27 @@
-# Use Node.js with Alpine for smaller image size
-FROM node:18-alpine
+# Använd smalare image
+FROM node:24-alpine
 
-# Set working directory
+# Ange arbetskatalog
 WORKDIR /app
 
-# Copy package.json and install dependencies
+# Kopiera och installera bara beroenden först
 COPY package*.json ./
 RUN npm install
 
-# Copy the rest of the backend code
+# Kopiera all kod
 COPY . .
 
-# Build TypeScript
+# Bygg TypeScript
 RUN npm run build
 
-# Set environment variables
+# Rensa cache för mindre image (valfritt)
+RUN npm cache clean --force
+
+# Ange miljö
 ENV NODE_ENV=production
 
-# Start server
+# Exponera port om du vill (valfritt men bra för dokumentation)
+EXPOSE 4000
+
+# Starta applikationen
 CMD ["npm", "start"]
