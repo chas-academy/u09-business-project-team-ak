@@ -14,6 +14,7 @@ import authRoutes from './routes/authRoutes';
 import { getProfile } from './controllers/authController';
 import recipeRoutes from './routes/recipeRoutes';
 import mealPlanRoutes from './routes/mealPlanRoutes';
+import milestoneRoutes from './routes/milestoneRoutes';
 
 dotenv.config();
 
@@ -45,6 +46,7 @@ app.use(cookieParser());
 // Debug route
 app.get('/debug-session', (req, res) => {
   console.log('🧪 Session:', req.session);
+  console.log('🧪 User:', req.user);
   res.json({ session: req.session });
 });
 
@@ -83,7 +85,8 @@ app.get('/favicon.ico', (req, res) => {
 app.get('/profile', getProfile);
 app.use('/auth', authRoutes);
 app.use('/api/recipes', recipeRoutes);
-app.use('/api/mealplan', mealPlanRoutes);
+app.use('/api/mealplans', mealPlanRoutes);
+app.use('/api/milestones', milestoneRoutes);
 
 // Start server
 const PORT = process.env.PORT || 4000;

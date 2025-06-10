@@ -5,6 +5,10 @@ export const isAuthenticated = (
   res: Response,
   next: NextFunction
 ) => {
+
+  console.log('isAuthenticated running for path:', req.path);
+  console.log('req.isAuthenticated:', typeof req.isAuthenticated === 'function' ? req.isAuthenticated() : 'not a function');
+
   if (typeof req.isAuthenticated === 'function' && req.isAuthenticated()) {
     return next();
   }

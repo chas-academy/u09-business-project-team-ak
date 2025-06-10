@@ -4,14 +4,27 @@ import Recipe from '../models/Recipe';
 import { IUser } from '../models/User';
 
 export const saveMealPlan = async (req: Request, res: Response) => {
-  const { date, mealType, recipe } = req.body;
+  const { date, mealType, recipe, removeRecipeId } = req.body;
   const user = req.user as IUser;
 
   try {
-    // 1. Check if recipe exists by spoonacularId
+    // Handle removing a recipe from a meal type
+    if (removeRecipeId) {
+      const plan = await MealPlan.findOneAndUpdate(
+        { userId: user._id, date },
+        { $pull: { [mealType]: removeRecipeId } },
+        { new: true }
+      )
+        .populate('breakfast')
+        .populate('lunch')
+        .populate('dinner');
+
+      return res.json(plan);
+    }
+
+    // Handle adding a recipe
     let existingRecipe = await Recipe.findOne({ spoonacularId: recipe.spoonacularId });
 
-    // 2. If not found, create it
     if (!existingRecipe) {
       existingRecipe = new Recipe({
         spoonacularId: recipe.spoonacularId,
@@ -21,12 +34,14 @@ export const saveMealPlan = async (req: Request, res: Response) => {
       await existingRecipe.save();
     }
 
-    // 3. Update the meal plan with reference to Recipe _id
     const plan = await MealPlan.findOneAndUpdate(
       { userId: user._id, date },
       { $push: { [mealType]: existingRecipe._id } },
       { new: true, upsert: true }
-    );
+    )
+      .populate('breakfast')
+      .populate('lunch')
+      .populate('dinner');
 
     res.json(plan);
   } catch (e) {

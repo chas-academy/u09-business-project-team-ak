@@ -12,23 +12,29 @@ interface User {
 export default function Navbar() {
   const [user, setUser] = useState<User | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+    const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const res = await fetch('http://localhost:4000/profile', {
-          credentials: 'include',
-        });
-        if (!res.ok) throw new Error('Not authenticated');
-        const data = await res.json();
-        setUser(data);
-      } catch {
-        setUser(null);
-      }
-    };
-    fetchProfile();
-  }, []);
+
+useEffect(() => {
+  const fetchProfile = async () => {
+    try {
+      const res = await fetch('http://localhost:4000/profile', {
+        credentials: 'include',
+      });
+      if (!res.ok) throw new Error('Not authenticated');
+      const data = await res.json();
+      setUser(data);
+    } catch {
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+  fetchProfile();
+}, []);
+
+if (loading) return <div>Loading...</div>;
 
   const handleLogout = async () => {
     try {
@@ -106,7 +112,7 @@ export default function Navbar() {
                 </span>
                 <button
                   onClick={handleLogout}
-                  className="text-red-300 hover:text-red-500 transition-colors duration-200"
+                  className="text-red-500 hover:text-red-700 transition-colors duration-200"
                 >
                   Logout
                 </button>

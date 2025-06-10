@@ -1,12 +1,65 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { useEffect, useState, useRef } from 'react';
+import { motion, useAnimation, useInView } from "framer-motion";
+
+type MilestoneData = {
+  savedRecipesCount: number;
+  mealPlansCount: number;
+  totalMealsPlanned: number;
+  foodJoke: string;
+};
 
 export default function Home() {
+  const [milestones, setMilestones] = useState<MilestoneData | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const recipeRef = useRef(null);
+  const recipeInView = useInView(recipeRef, { once: true, margin: '-100px' });
+  const textControls = useAnimation();
+  const bgControls = useAnimation();
+
+  useEffect(() => {
+    const fetchMilestones = async () => {
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/milestones`, {
+        credentials: 'include',
+      });
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(`HTTP error! status: ${res.status} ${errorText}`);
+      }
+
+      const data = await res.json();
+      setMilestones(data);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      console.error('Error fetching milestones:', err);
+      setError(errorMessage);
+    }
+  };
+
+
+    fetchMilestones();
+  }, []);
+
+  useEffect(() => {
+    if (recipeInView) {
+      textControls.start({ opacity: 1, x: 0 });
+      bgControls.start({ opacity: 1 });
+    }
+  }, [recipeInView, textControls, bgControls]);
+
   return (
     <div
       className="min-h-screen w-full"
-      style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif" }}
+      style={{
+        fontFamily:
+          "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif",
+        background:
+          'linear-gradient(180deg,rgba(18, 28, 20, 1) 50%, rgba(65, 171, 53, 1) 70%, rgba(18, 28, 20, 1) 100%)',
+      }}
     >
       {/* Hero Section */}
       <section
@@ -15,29 +68,9 @@ export default function Home() {
       >
         <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center text-center text-white px-4">
           <h1 className="text-5xl md:text-7xl font-extrabold mb-6">
-            Build your <span className="text-orange-500">Health</span> One <span className="text-green-500">Habit</span> at a time!
+            Build your <span className="text-green-500">Health</span> One <span className="text-green-500">Habit</span> at a time!
           </h1>
           <h4 className="text-xl md:text-3xl mb-8">First one starts in the kitchen</h4>
-          <a
-            href="/recipes"
-            className="text-xl bg-green-500 hover:bg-green-800 text-white font-semibold py-3 px-8 rounded-full transition"
-          >
-            Recipes
-          </a>
-        </div>
-      </section>
-
-      {/* Recipes Preview Section */}
-      <section
-        className="relative h-screen bg-cover bg-center w-[90%] mx-auto mt-20 mb-20"
-        style={{ backgroundImage: "url('/meals.jpg')" }}
-      >
-        <div className="absolute inset-0 bg-black/60 bg-opacity-80 flex flex-col items-center justify-center text-center text-white px-4">
-          <h2 className="text-4xl md:text-6xl font-extrabold mb-4">100+ RECIPES TO CHOOSE FROM</h2>
-          <h3 className="text-xl md:text-3xl mb-8">
-            Plan your own meals in only minutes. <br className="hidden md:block" />
-            Customizable to your liking!
-          </h3>
           <a
             href="/mealplan"
             className="text-xl bg-green-500 hover:bg-green-800 text-white font-semibold py-3 px-8 rounded-full transition"
@@ -47,52 +80,101 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Daily Goals Section */}
-      <section className="text-center py-20 mb-20">
-        <h2 className="text-4xl font-extrabold text-white mb-12">Daily Goals</h2>
-        <div className="flex flex-wrap justify-center gap-8">
-          {[
-            { label: "Calories", value: "0/2500" },
-            { label: "Fat", value: "0/60g" },
-            { label: "Carbs", value: "0/200g" },
-            { label: "Protein", value: "0/160g" },
-          ].map((goal, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: index * 0.2 }}
-              viewport={{ once: true }}
-              className="w-48 h-48 rounded-full bg-orange-500 text-white flex flex-col items-center justify-center text-xl font-bold shadow-lg hover:scale-105 hover:bg-orange-600 transition-transform duration-300"
+      {/* Recipes Preview Section */}
+      <motion.section
+        ref={recipeRef}
+        initial={{ opacity: 0 }}
+        animate={bgControls}
+        transition={{ duration: 1 }}
+        className="relative h-[600px] bg-cover bg-center w-[100%] mx-auto mt-10 mb-10"
+        style={{ backgroundImage: "url('/meals.jpg')" }}
+      >
+        <div className="absolute inset-0 bg-black/60 bg-opacity-80 flex flex-col items-end justify-center text-right text-white px-4">
+          <motion.div
+            initial={{ opacity: 0, x: 100 }}
+            animate={textControls}
+            transition={{ duration: 1, ease: "easeOut" }}
+            className="flex flex-col items-end text-right space-y-4"
+          >
+            <h2 className="text-4xl md:text-6xl font-extrabold">
+              1000+ <span className="text-green-500">RECIPES</span> TO CHOOSE FROM
+            </h2>
+            <h3 className="text-xl md:text-3xl">
+              Plan your own meals in only minutes. <br className="hidden md:block" />
+              Customizable to your liking!
+            </h3>
+            <a
+              href="/recipes"
+              className="text-xl bg-green-500 hover:bg-green-800 text-white font-semibold py-3 px-8 rounded-full transition"
             >
-              <div className="text-2xl">{goal.value}</div>
-              <div className="text-lg mt-1">{goal.label}</div>
-            </motion.div>
-          ))}
+              Recipes
+            </a>
+          </motion.div>
         </div>
-      </section>
+      </motion.section>
 
-      {/* Footer */}
-      <footer className="bg-orange-500 text-white text-center py-10">
-        <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 text-base mb-4">
-          <div>
-            <strong>About Us</strong>
-            <br />
-            We help people build healthy eating habits.
-          </div>
-          <div>
-            <strong>Contact</strong>
-            <br />
-            support@healthyhabits.com
-          </div>
-          <div>
-            <strong>Info</strong>
-            <br />
-            Recipes, tips, and planning tools.
-          </div>
-        </div>
-        <p className="text-sm">© 2025 HealthyHabits</p>
-      </footer>
+      {/* Milestones Section */}
+      <section className="text-center py-20 mb-20">
+        <h2 className="text-6xl font-extrabold text-white mb-12">Milestone Progress</h2>
+        {error ? (
+          <p className="text-red-500 text-xl">Error: {error}</p>
+        ) : milestones ? (
+          <>
+            <div className="flex flex-wrap justify-center mt-10 gap-8 text-white">
+              {/* Saved Recipes Cylinder */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5 }}
+                viewport={{ once: true }}
+                className="bg-gradient-to-b from-green-500 to-green-800 rounded-full p-6 shadow-xl w-48 h-48 flex flex-col items-center justify-center"
+              >
+                <h3 className="text-lg font-bold mb-1">Saved Recipes</h3>
+                <p className="text-3xl font-extrabold">{milestones.savedRecipesCount}</p>
+              </motion.div>
+
+              {/* Meal Plans Created Cylinder */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                viewport={{ once: true }}
+                className="bg-gradient-to-b from-green-500 to-green-800 rounded-full p-6 shadow-xl w-48 h-48 flex flex-col items-center justify-center"
+              >
+                <h3 className="text-lg font-bold mb-1">Meal Plans Created</h3>
+                <p className="text-3xl font-extrabold">{milestones.mealPlansCount}</p>
+              </motion.div>
+
+              {/* Total Meals Planned Cylinder */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+                viewport={{ once: true }}
+                className="bg-gradient-to-b from-green-500 to-green-800 rounded-full p-6 shadow-xl w-48 h-48 flex flex-col items-center justify-center"
+              >
+                <h3 className="text-lg font-bold mb-1">Total Meals Planned</h3>
+                <p className="text-3xl font-extrabold">{milestones.totalMealsPlanned}</p>
+              </motion.div>
+            </div>
+
+            {/* Food Joke Marquee */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              transition={{ duration: 0.8, delay: 0.6 }}
+              viewport={{ once: true }}
+              className="mt-12 h-[100px] w-full bg-[#121c14]/50 py-4 rounded-xl shadow-lg overflow-hidden relative"
+            >
+              <p className="absolute whitespace-nowrap animate-marquee text-white text-lg font-medium px-4">
+                {milestones.foodJoke}
+              </p>
+            </motion.div>
+          </>
+        ) : (
+          <p className="text-white text-xl">Loading milestones...</p>
+        )}
+      </section>
     </div>
   );
 }

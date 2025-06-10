@@ -9,4 +9,4 @@ const mealPlanSchema = new Schema<IMealPlan>({
   dinner: [{ type: Schema.Types.ObjectId, ref: 'Recipe' }],
 });
 
-export default mongoose.model<IMealPlan>('MealPlan', mealPlanSchema);
+export default mongoose.model('MealPlan', mealPlanSchema);
