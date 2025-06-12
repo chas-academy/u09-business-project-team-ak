@@ -66,3 +66,28 @@ export const getMealPlan = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Error fetching meal plan' });
   }
 };
+
+export const deleteRecipeFromMealPlan = async (req: Request, res: Response) => {
+  const { date, mealType, recipeId } = req.params;
+  const user = req.user as IUser;
+
+  try {
+    const plan = await MealPlan.findOneAndUpdate(
+      { userId: user._id, date },
+      { $pull: { [mealType]: recipeId } },
+      { new: true }
+    )
+      .populate('breakfast')
+      .populate('lunch')
+      .populate('dinner');
+
+    if (!plan) {
+      return res.status(404).json({ error: 'Meal plan not found' });
+    }
+
+    res.json(plan);
+  } catch (e) {
+    console.error('❌ Error deleting recipe from meal plan:', e);
+    res.status(500).json({ error: 'Error deleting recipe from meal plan' });
+  }
+};

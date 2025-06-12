@@ -120,7 +120,7 @@ export default function MealPlan() {
 
   const deleteRecipe = async (meal: keyof DailyMealPlan, recipeId: string) => {
     try {
-      const res = await fetch(`http://localhost:4000/api/mealplan`, {
+      const res = await fetch(`http://localhost:4000/api/mealplans`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -162,7 +162,7 @@ export default function MealPlan() {
   const renderSection = (title: string, meals: Recipe[], type: keyof DailyMealPlan) => (
     <div key={title} className="mb-10">
       <h3 className="text-4xl text-white mb-4 font-bold text-center">{title}</h3>
-      
+
       {/* Macro Box with animation */}
       <div className="max-w-7xl mx-auto">
         {renderMacroBox(mealMacros[type])}
@@ -171,15 +171,17 @@ export default function MealPlan() {
       {/* Recipes Grid */}
       <div className="bg-[#121c14]/10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
         {meals.map(r => (
-          <div key={r._id} className="border-8 border-green-800 bg-[#121c14] text-white p-4 rounded shadow relative">
-            <img src={r.image} alt={r.title} className="w-full h-40 object-cover rounded" />
-            <h4 className="text-lg font-semibold mt-2">{r.title}</h4>
-            <p className="text-sm mt-2 text-white">{instructions[r.spoonacularId] || "Loading..."}</p>
+          <div key={r._id} className="border-8 border-green-800 bg-[#121c14] text-white p-4 rounded shadow relative flex flex-col justify-between">
+            <div>
+              <img src={r.image} alt={r.title} className="w-full h-40 object-cover rounded" />
+              <h4 className="text-lg font-semibold mt-2">{r.title}</h4>
+              <p className="text-sm mt-2 text-white">{instructions[r.spoonacularId] || "Loading..."}</p>
+            </div>
             <button
               onClick={() => deleteRecipe(type, r._id)}
-              className="absolute top-2 right-2 bg-red-500 px-2 py-1 rounded text-white"
+              className="mt-4 bg-red-600 hover:bg-red-700 transition px-4 py-2 rounded text-white w-full"
             >
-              ✕
+              Remove Recipe
             </button>
           </div>
         ))}
@@ -211,7 +213,7 @@ export default function MealPlan() {
       <section className="min-h-screen text-white px-6 py-12">
         <div className="max-w-7xl mx-auto">
           <h2 className="bg-[#121c14]/90 w-full h-[100px] text-7xl font-bold text-green-500 text-center mb-8">MealPlan</h2>
-          
+
           {/* Calendar */}
           <div className="flex justify-center mb-10">
             <Calendar

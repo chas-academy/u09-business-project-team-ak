@@ -1,7 +1,9 @@
-import { IUser } from '../../models/User'; // adjust if needed
+import 'express-session';
 
-declare global {
-  namespace Express {
-    interface User extends IUser {}
+declare module 'express-session' {
+  interface SessionData {
+    user: {
+      _id: string; // or whatever other fields you store in session
+    };
   }
 }
