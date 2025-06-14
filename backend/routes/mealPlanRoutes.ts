@@ -6,6 +6,6 @@ const router = express.Router();
 
 router.post('/', isAuthenticated, saveMealPlan);
 router.get('/:date', isAuthenticated, getMealPlan);
-router.delete('/:date/:mealType/:recipeId', deleteRecipeFromMealPlan);
+router.delete('/:date/:mealType/:recipeId', isAuthenticated, deleteRecipeFromMealPlan);
 
 export default router;

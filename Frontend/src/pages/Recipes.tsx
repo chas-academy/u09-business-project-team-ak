@@ -23,12 +23,6 @@ interface RecipeSearchResponse {
   results: Recipe[];
 }
 
-interface User {
-  _id: string;
-  name: string;
-  email: string;
-}
-
 export default function Recipes() {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [savedRecipes, setSavedRecipes] = useState<Recipe[]>([]);
@@ -36,26 +30,14 @@ export default function Recipes() {
   const [diet, setDiet] = useState("");
   const [date, setDate] = useState<Date>(new Date());
   const [selectedDate, setSelectedDate] = useState(
-    new Date().toLocaleDateString('en-CA')
+    new Date().toLocaleDateString("en-CA")
   );
   const [showSavedRecipes, setShowSavedRecipes] = useState(true);
-  const [user, setUser] = useState<User | null>(null);
   const [selectedMeals, setSelectedMeals] = useState<{ [key: string]: string }>({});
 
   const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
-  const fetchProfile = async () => {
-    try {
-      const res = await axios.get<User>("/profile", { withCredentials: true });
-      setUser(res.data);
-    } catch (error) {
-      console.error("Not logged in:", error);
-      setUser(null);
-    }
-  };
-
   const fetchSavedRecipes = async () => {
-    if (!user) return;
     try {
       const res = await axios.get<Recipe[]>(`${API_BASE}/recipes`, {
         withCredentials: true,
@@ -70,7 +52,6 @@ export default function Recipes() {
     meal: "breakfast" | "lunch" | "dinner",
     recipe: Recipe
   ) => {
-    if (!user) return alert("Please log in to add to meal plan.");
     try {
       await axios.post(
         `${API_BASE}/mealplans`,
@@ -92,7 +73,6 @@ export default function Recipes() {
   };
 
   const handleSaveRecipe = async (recipe: Recipe) => {
-    if (!user) return alert("Please log in to save recipes.");
     try {
       await axios.post(
         `${API_BASE}/recipes/save`,
@@ -110,7 +90,6 @@ export default function Recipes() {
   };
 
   const handleDeleteRecipe = async (_id: string) => {
-    if (!user) return alert("Please log in to delete recipes.");
     try {
       await axios.delete(`${API_BASE}/recipes/${_id}`, { withCredentials: true });
       fetchSavedRecipes();
@@ -120,33 +99,21 @@ export default function Recipes() {
   };
 
   useEffect(() => {
-    fetchProfile();
+    fetchSavedRecipes();
   }, []);
-
-  useEffect(() => {
-    if (user) fetchSavedRecipes();
-  }, [user]);
 
   useEffect(() => {
     const fetchRecipes = async () => {
       try {
         if (!query && !diet) {
-          const res = await axios.get<RandomRecipesResponse>(
-            "https://api.spoonacular.com/recipes/random",
-            {
-              params: {
-                apiKey: import.meta.env.VITE_SPOONACULAR_API_KEY,
-                number: 24,
-              },
-            }
-          );
+          const res = await spoonacular.get<RandomRecipesResponse>("recipes/random", {
+            params: { number: 24 },
+          });
           setRecipes(res.data.recipes);
         } else {
           const res = await spoonacular.get<RecipeSearchResponse>(
             "recipes/complexSearch",
-            {
-              params: { query, diet, number: 24 },
-            }
+            { params: { query, diet, number: 24 } }
           );
           setRecipes(res.data.results);
         }
@@ -154,7 +121,6 @@ export default function Recipes() {
         console.error("Error fetching recipes:", err);
       }
     };
-
     fetchRecipes();
   }, [query, diet]);
 
@@ -279,9 +245,7 @@ export default function Recipes() {
             onChange={(newDate) => {
               const d = newDate as Date;
               setDate(d);
-              const toLocalDateString = (date: Date) =>
-                date.toLocaleDateString('en-CA');
-              setSelectedDate(toLocalDateString(d));
+              setSelectedDate(d.toLocaleDateString("en-CA"));
             }}
           />
         </div>

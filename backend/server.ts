@@ -43,13 +43,6 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
-// Debug route
-app.get('/debug-session', (req, res) => {
-  console.log('🧪 Session:', req.session);
-  console.log('🧪 User:', req.user);
-  res.json({ session: req.session });
-});
-
 // Sessions (must be before passport)
 app.use(session({
   secret: process.env.SESSION_SECRET || 'secret',
@@ -70,6 +63,13 @@ app.use(session({
 // Passport
 app.use(passport.initialize());
 app.use(passport.session());
+
+// ✅ Debug route (moved here, after session + passport setup)
+app.get('/debug-session', (req, res) => {
+  console.log('🧪 Session:', req.session);
+  console.log('🧪 User:', req.user);
+  res.json({ session: req.session, user: req.user });
+});
 
 // Favicon fallback
 app.get('/favicon.ico', (req, res) => {

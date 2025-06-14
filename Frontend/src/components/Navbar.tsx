@@ -12,33 +12,36 @@ interface User {
 export default function Navbar() {
   const [user, setUser] = useState<User | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
-    const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await fetch('/profile', { // ✅ use Vite proxy
+          credentials: 'include',
+        });
+        if (!res.ok) throw new Error('Not authenticated');
+        const data = await res.json();
+        setUser(data);
+      } catch {
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProfile();
+  }, []);
 
-useEffect(() => {
-  const fetchProfile = async () => {
-    try {
-      const res = await fetch('http://localhost:4000/profile', {
-        credentials: 'include',
-      });
-      if (!res.ok) throw new Error('Not authenticated');
-      const data = await res.json();
-      setUser(data);
-    } catch {
-      setUser(null);
-    } finally {
-      setLoading(false);
-    }
+  if (loading) return <div>Loading...</div>;
+
+  const handleLogin = () => {
+    window.location.href = '/auth/google'; // ✅ use proxy path
   };
-  fetchProfile();
-}, []);
-
-if (loading) return <div>Loading...</div>;
 
   const handleLogout = async () => {
     try {
-      await fetch('http://localhost:4000/auth/logout', {
+      await fetch('/auth/logout', { // ✅ use proxy path
         credentials: 'include',
       });
     } catch (err) {
@@ -50,7 +53,7 @@ if (loading) return <div>Loading...</div>;
   };
 
   return (
-    <nav className=" text-white px-6 py-4 shadow-md w-full">
+    <nav className="text-white px-6 py-4 shadow-md w-full">
       <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:justify-between sm:items-center">
         {/* Top row with logo and toggle button */}
         <div className="flex items-center justify-between w-full sm:w-auto">
@@ -118,12 +121,12 @@ if (loading) return <div>Loading...</div>;
                 </button>
               </>
             ) : (
-              <a
-                href="http://localhost:4000/auth/google"
+              <button
+                onClick={handleLogin} // ✅ now using proper proxy login
                 className="bg-green-700 px-4 py-2 rounded text-white hover:bg-green-500 transition duration-200"
               >
                 Login with Google
-              </a>
+              </button>
             )}
           </div>
         </div>
