@@ -36,7 +36,7 @@ export default function Navbar() {
   if (loading) return <div>Loading...</div>;
 
   const handleLogin = () => {
-    window.location.href = '/auth/google'; // ✅ use proxy path
+    window.location.href = import.meta.env.VITE_API_BASE_URL.replace('/api', '') + '/auth/google';
   };
 
   const handleLogout = async () => {
