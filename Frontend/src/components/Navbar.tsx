@@ -18,9 +18,10 @@ export default function Navbar() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await fetch('/profile', { // ✅ use Vite proxy
-          credentials: 'include',
-        });
+        const res = await fetch(
+          import.meta.env.VITE_API_BASE_URL.replace('/api', '') + '/profile',
+          { credentials: 'include' }
+        );
         if (!res.ok) throw new Error('Not authenticated');
         const data = await res.json();
         setUser(data);
@@ -41,7 +42,7 @@ export default function Navbar() {
 
   const handleLogout = async () => {
     try {
-      await fetch('/auth/logout', { // ✅ use proxy path
+      await fetch(import.meta.env.VITE_API_BASE_URL.replace('/api', '') + '/auth/logout', { // ✅ use proxy path
         credentials: 'include',
       });
     } catch (err) {
