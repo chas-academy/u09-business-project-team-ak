@@ -1,1 +1,4 @@
 /*    /index.html   200
+/auth/*    https://u09-business-project-team-ak.onrender.com/auth/:splat    200
+/profile   https://u09-business-project-team-ak.onrender.com/profile         200
+/api/*     https://u09-business-project-team-ak.onrender.com/api/:splat      200
