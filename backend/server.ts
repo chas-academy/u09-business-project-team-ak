@@ -57,9 +57,9 @@ app.use(session({
     ttl: 24 * 60 * 60, // 1 day
   }),
   cookie: {
-    secure: false, // true in production with HTTPS
+    secure: true, // true in production with HTTPS
     httpOnly: true,
-    sameSite: 'lax',
+    sameSite: 'none',
     maxAge: 24 * 60 * 60 * 1000, // 1 day
   }
 }));
