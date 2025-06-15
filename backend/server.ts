@@ -41,11 +41,12 @@ app.use(cors({
   credentials: true,
 }));
 
-
-
 // Parsers
 app.use(express.json());
 app.use(cookieParser());
+
+// Check environment
+const isProduction = process.env.NODE_ENV === 'production';
 
 // Sessions (must be before passport)
 app.use(session({
@@ -57,9 +58,9 @@ app.use(session({
     ttl: 24 * 60 * 60, // 1 day
   }),
   cookie: {
-    secure: true, // true in production with HTTPS
+    secure: isProduction, // ✅ true in production, false in dev
     httpOnly: true,
-    sameSite: 'none',
+    sameSite: isProduction ? 'none' : 'lax', // ✅ 'none' for cross-site, 'lax' locally
     maxAge: 24 * 60 * 60 * 1000, // 1 day
   }
 }));
