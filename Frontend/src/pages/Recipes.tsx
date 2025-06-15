@@ -107,7 +107,7 @@ export default function Recipes() {
       try {
         if (!query && !diet) {
           const res = await spoonacular.get<RandomRecipesResponse>("recipes/random", {
-            params: { number: 24 },
+            params: { number: 12 },
           });
           setRecipes(res.data.recipes);
         } else {
