@@ -1,8 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import Calendar, { CalendarProps } from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import { getNutritionInfo, getRecipeInstructions } from "../services/spoonacularApi";
 import { motion } from 'framer-motion';
+
+const API_URL = import.meta.env.VITE_API_BASE_URL as string;
 
 interface Recipe {
   _id: string;
@@ -10,12 +13,15 @@ interface Recipe {
   title: string;
   image: string;
 }
+
 interface RecipeInfo { [key: number]: string; }
+
 interface DailyMealPlan {
   breakfast: Recipe[];
   lunch: Recipe[];
   dinner: Recipe[];
 }
+
 interface MacroTotals {
   calories: number;
   protein: number;
@@ -47,7 +53,7 @@ export default function MealPlan() {
   useEffect(() => {
     const fetchMealPlan = async () => {
       try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/mealplans/${selectedDate}`, {
+        const res = await fetch(`${API_URL}/mealplans/${selectedDate}`, {
           credentials: 'include',
         });
         const data = await res.json();
@@ -84,7 +90,6 @@ export default function MealPlan() {
           const nut = await getNutritionInfo(r.spoonacularId);
           const parse = (s: string) => parseFloat(s.replace(/[^\d.]/g, ""));
           const mealType = ["breakfast", "lunch", "dinner"].find(type =>
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (mealPlan as any)[type].some((meal: Recipe) => meal._id === r._id)
           ) as keyof DailyMealPlan;
 
@@ -120,7 +125,7 @@ export default function MealPlan() {
 
   const deleteRecipe = async (meal: keyof DailyMealPlan, recipeId: string) => {
     try {
-      const res = await fetch(`http://localhost:4000/api/mealplans`, {
+      const res = await fetch(`${API_URL}/mealplans`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -162,13 +167,10 @@ export default function MealPlan() {
   const renderSection = (title: string, meals: Recipe[], type: keyof DailyMealPlan) => (
     <div key={title} className="mb-10">
       <h3 className="text-4xl text-white mb-4 font-bold text-center">{title}</h3>
-
-      {/* Macro Box with animation */}
       <div className="max-w-7xl mx-auto">
         {renderMacroBox(mealMacros[type])}
       </div>
 
-      {/* Recipes Grid */}
       <div className="bg-[#121c14]/10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
         {meals.map(r => (
           <div key={r._id} className="border-8 border-green-800 bg-[#121c14] text-white p-4 rounded shadow relative flex flex-col justify-between">
@@ -213,8 +215,6 @@ export default function MealPlan() {
       <section className="min-h-screen text-white px-6 py-12">
         <div className="max-w-7xl mx-auto">
           <h2 className="bg-[#121c14]/90 w-full h-[100px] text-7xl font-bold text-green-500 text-center mb-8">MealPlan</h2>
-
-          {/* Calendar */}
           <div className="flex justify-center mb-10">
             <Calendar
               onChange={handleDateChange}
@@ -227,7 +227,6 @@ export default function MealPlan() {
           {renderSection("Lunch", mealPlan.lunch, "lunch")}
           {renderSection("Dinner", mealPlan.dinner, "dinner")}
 
-          {/* Total Macros */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
