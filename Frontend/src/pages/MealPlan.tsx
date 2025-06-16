@@ -47,7 +47,7 @@ export default function MealPlan() {
   useEffect(() => {
     const fetchMealPlan = async () => {
       try {
-        const res = await fetch(`http://localhost:4000/api/mealplans/${selectedDate}`, {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/mealplans/${selectedDate}`, {
           credentials: 'include',
         });
         const data = await res.json();
